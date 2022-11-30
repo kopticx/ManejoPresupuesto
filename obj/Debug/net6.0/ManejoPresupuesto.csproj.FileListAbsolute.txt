@@ -67,3 +67,8 @@ C:\Users\kevin\Documents\Proyectos C#\ManejoPresupuesto\bin\Debug\net6.0\ClosedX
 C:\Users\kevin\Documents\Proyectos C#\ManejoPresupuesto\bin\Debug\net6.0\DocumentFormat.OpenXml.dll
 C:\Users\kevin\Documents\Proyectos C#\ManejoPresupuesto\bin\Debug\net6.0\ExcelNumberFormat.dll
 C:\Users\kevin\Documents\Proyectos C#\ManejoPresupuesto\bin\Debug\net6.0\System.IO.Packaging.dll
+C:\Users\kevin\Documents\Proyectos C#\ManejoPresupuesto\obj\Debug\net6.0\staticwebassets\msbuild.ManejoPresupuesto.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\kevin\Documents\Proyectos C#\ManejoPresupuesto\obj\Debug\net6.0\staticwebassets\msbuild.build.ManejoPresupuesto.props
+C:\Users\kevin\Documents\Proyectos C#\ManejoPresupuesto\obj\Debug\net6.0\staticwebassets\msbuild.buildMultiTargeting.ManejoPresupuesto.props
+C:\Users\kevin\Documents\Proyectos C#\ManejoPresupuesto\obj\Debug\net6.0\staticwebassets\msbuild.buildTransitive.ManejoPresupuesto.props
+C:\Users\kevin\Documents\Proyectos C#\ManejoPresupuesto\obj\Debug\net6.0\staticwebassets.pack.json

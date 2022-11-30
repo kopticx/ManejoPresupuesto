@@ -7,16 +7,16 @@ namespace ManejoPresupuesto.Servicios
 {
     public class RepositorioTransacciones : IRepositorioTransacciones
     {
-        private readonly string connectionString;
+        private readonly ISqlServerProvider sqlServerProvider;
 
-        public RepositorioTransacciones(IConfiguration configuration)
+        public RepositorioTransacciones(ISqlServerProvider sqlServerProvider)
         {
-            connectionString = configuration.GetConnectionString("DefaultConnection");
+            this.sqlServerProvider = sqlServerProvider;
         }
 
         public async Task Crear(Transaccion transaccion)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
 
             var id = await con.QuerySingleAsync<int>("Transacciones_Insertar", new {transaccion.UsuarioId, transaccion.FechaTransaccion, 
                                                                                     transaccion.Monto, transaccion.CategoriaId, 
@@ -27,7 +27,8 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task<IEnumerable<Transaccion>> ObtenerPorUsuarioId(ParametroObtenerTransaccionesPorUsuario modelo)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
+
             return await con.QueryAsync<Transaccion>(@"SELECT T.Id, T.Monto, T.FechaTransaccion, C.Nombre Categoria, CU.Nombre Cuenta, C.TipoOperacionId, T.Nota
                                                        FROM Transacciones T 
                                                        INNER JOIN Categorias C
@@ -41,7 +42,8 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task Actualizar(Transaccion transaccion, decimal montoAnterior, int cuentaAnteriorId)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
+
             await con.ExecuteReaderAsync(@"Transacciones_Actualizar", new {transaccion.Id, transaccion.FechaTransaccion, transaccion.Monto,
                                                                            transaccion.CategoriaId, transaccion.CuentaId, transaccion.Nota,
                                                                            montoAnterior, cuentaAnteriorId }, commandType: CommandType.StoredProcedure);
@@ -49,7 +51,8 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task<Transaccion> ObtenerPorId(int id, int usuarioId)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
+
             return await con.QueryFirstOrDefaultAsync<Transaccion>(@"SELECT T.*, C.TipoOperacionId FROM Transacciones T
                                                                      INNER JOIN Categorias C
                                                                      ON C.Id = T.CategoriaId
@@ -58,7 +61,8 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task<IEnumerable<Transaccion>> ObtenerPorCuentaId(ObtenerTransaccionesPorCuenta modelo)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
+
             return await con.QueryAsync<Transaccion>(@"SELECT T.Id, T.Monto, T.FechaTransaccion, C.Nombre Categoria, CU.Nombre Cuenta, C.TipoOperacionId
                                                        FROM Transacciones T 
                                                        INNER JOIN Categorias C
@@ -71,7 +75,7 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task<IEnumerable<ResultadoObtenerPorSemana>> ObtenerPorSemana(ParametroObtenerTransaccionesPorUsuario modelo)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
 
             return await con.QueryAsync<ResultadoObtenerPorSemana>(@"SELECT DATEDIFF(d, @fechaInicio, FechaTransaccion) / 7 + 1 AS Semana,
                                                                      SUM(Monto) AS Monto, C.TipoOperacionId
@@ -85,7 +89,7 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task<IEnumerable<ResultadoObtenerPorMes>> ObtenerPorMes(int usuarioId, int año)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
 
             return await con.QueryAsync<ResultadoObtenerPorMes>(@"SELECT MONTH(FechaTransaccion) AS Mes,
                                                                   SUM(Monto) As Monto, C.TipoOperacionId
@@ -98,7 +102,8 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task Borrar(int id)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
+
             await con.ExecuteAsync("Transacciones_Borrar", new { id }, commandType: CommandType.StoredProcedure);
         }
     }

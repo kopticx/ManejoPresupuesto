@@ -7,16 +7,16 @@ namespace ManejoPresupuesto.Servicios
 {
     public class RepositorioUsuarios : IRepositorioUsuarios
     {
-        private readonly string connectionString;
+        private readonly ISqlServerProvider sqlServerProvider;
 
-        public RepositorioUsuarios(IConfiguration configuration)
+        public RepositorioUsuarios(ISqlServerProvider sqlServerProvider)
         {
-            connectionString = configuration.GetConnectionString("DefaultConnection");
+            this.sqlServerProvider = sqlServerProvider;
         }
 
         public async Task<int> CrearUsuario(Usuario usuario)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
 
             var UsuarioId = await con.QuerySingleAsync<int>(@"INSERT INTO Usuarios (Email, EmailNormalizado, PasswordHash)
                                                        VALUES (@Email, @EmailNormalizado, @PasswordHash)
@@ -29,7 +29,8 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task<Usuario> BuscarUsuarioPorEmail(string emailNormalizado)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
+
             return await con.QuerySingleOrDefaultAsync<Usuario>(@"SELECT * FROM Usuarios 
                                                                   WHERE EmailNormalizado = @emailNormalizado", new { emailNormalizado});
         }

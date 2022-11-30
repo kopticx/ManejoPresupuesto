@@ -6,16 +6,17 @@ namespace ManejoPresupuesto.Servicios
 {
     public class RepositorioCategorias : IRepositorioCategorias
     {
-        private readonly string connectionString;
+        private readonly ISqlServerProvider sqlServerProvider;
 
-        public RepositorioCategorias(IConfiguration configuration)
+        public RepositorioCategorias(ISqlServerProvider sqlServerProvider)
         {
-            connectionString = configuration.GetConnectionString("DefaultConnection");
+            this.sqlServerProvider = sqlServerProvider;
         }
 
         public async Task Crear(Categoria categoria)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
+
             var id = await con.QuerySingleAsync<int>(@"INSERT INTO Categorias (Nombre, TipoOperacionId, UsuarioId)
                                                  VALUES (@Nombre, @TipoOperacionId, @UsuarioId)
                                                  SELECT SCOPE_IDENTITY()", categoria);
@@ -25,7 +26,7 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task<IEnumerable<Categoria>> Obtener(int usuarioId, PaginacionViewModel paginacion)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
 
             return await con.QueryAsync<Categoria>(@$"SELECT * FROM Categorias 
                                                      WHERE UsuarioId = @usuarioId 
@@ -36,14 +37,14 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task<int> Contar(int usuarioId)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
             return await con.ExecuteScalarAsync<int>(@"SELECT COUNT(*) FROM Categorias
                                                        WHERE UsuarioId = @usuarioId", new { usuarioId });
         }
 
         public async Task<IEnumerable<Categoria>> Obtener(int usuarioId, TipoOperacion tipoOperacionId)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
 
             return await con.QueryAsync<Categoria>(@"SELECT * FROM Categorias 
                                                      WHERE UsuarioId = @usuarioId 
@@ -52,21 +53,21 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task<Categoria> ObtenerPorId(int id, int usuarioId)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
             return await con.QueryFirstOrDefaultAsync<Categoria>(@"SELECT * FROM Categorias 
                                                                    WHERE Id = @id AND UsuarioId = @usuarioId", new { id, usuarioId });
         }
 
         public async Task Actualizar(Categoria categoria)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
             await con.ExecuteAsync(@"UPDATE Categorias SET Nombre = @Nombre, TipoOperacionId = @TipoOperacionId 
                                      WHERE Id = @UsuarioId", categoria);
         }
 
         public async Task Borrar(int id)
         {
-            var con = new SqlConnection(connectionString);
+            var con = sqlServerProvider.GetDbConnection();
             await con.ExecuteAsync(@"DELETE Categorias WHERE Id = @id", new { id });
         }
     }

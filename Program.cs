@@ -35,6 +35,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddTransient<SignInManager<Usuario>>();
+builder.Services.AddTransient<ISqlServerProvider, SqlServerProvider>();
 builder.Services.AddTransient<IServicioReportes, ServicioReportes>();
 builder.Services.AddTransient<IRepositorioUsuarios, RepositorioUsuarios>();
 builder.Services.AddTransient<IRepositorioTiposCuentas, RepositorioTiposCuentas>();

@@ -6,16 +6,16 @@ namespace ManejoPresupuesto.Servicios
 {
     public class RepositorioCuentas : IRepositorioCuentas
     {
-        private readonly string connectionString;
+        private readonly ISqlServerProvider sqlServerProvider;
 
-        public RepositorioCuentas(IConfiguration configuration)
+        public RepositorioCuentas(ISqlServerProvider sqlServerProvider)
         {
-            connectionString = configuration.GetConnectionString("DefaultConnection");
+            this.sqlServerProvider = sqlServerProvider;
         }
 
         public async Task Crear(Cuenta cuenta)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
             var id = await con.QuerySingleAsync<int>(@"INSERT INTO Cuentas(Nombre, TipoCuentaId, Balance, Descripcion)
                                                          VALUES(@Nombre, @TipoCuentaId, @Balance, @Descripcion)
                                                          SELECT SCOPE_IDENTITY();", cuenta);
@@ -25,7 +25,7 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task<IEnumerable<Cuenta>> Buscar(int usuarioId)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
 
             return await con.QueryAsync<Cuenta>(@"SELECT cuentas.id, cuentas.Nombre, Balance, TC.Nombre TipoCuenta 
                                                   FROM Cuentas
@@ -37,7 +37,8 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task<Cuenta> ObtenerPorId(int id, int usuarioId)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
+
             return await con.QueryFirstOrDefaultAsync<Cuenta>(@"SELECT cuentas.id, cuentas.Nombre, Balance, Descripcion, TipoCuentaId
                                                                 FROM Cuentas
                                                                 INNER JOIN TiposCuentas TC
@@ -48,7 +49,8 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task Actualizar(CuentaCreacionViewModel cuenta)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
+
             await con.ExecuteAsync(@"UPDATE Cuentas SET Nombre = @Nombre, Balance = @Balance, 
                                      Descripcion = @Descripcion, TipoCuentaId = @TipoCuentaId
                                      WHERE Id = @Id", cuenta);
@@ -56,7 +58,8 @@ namespace ManejoPresupuesto.Servicios
 
         public async Task Borrar(int id)
         {
-            using var con = new SqlConnection(connectionString);
+            using var con = sqlServerProvider.GetDbConnection();
+
             await con.ExecuteAsync(@"DELETE Cuentas WHERE Id = @Id", new { id });
         }
     }
