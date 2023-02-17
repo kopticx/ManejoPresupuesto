@@ -63,7 +63,7 @@ namespace ManejoPresupuesto.Servicios
         {
             using var con = sqlServerProvider.GetDbConnection();
 
-            return await con.QueryAsync<Transaccion>(@"SELECT T.Id, T.Monto, T.FechaTransaccion, C.Nombre Categoria, CU.Nombre Cuenta, C.TipoOperacionId
+            return await con.QueryAsync<Transaccion>(@"SELECT T.Id, T.Monto, T.FechaTransaccion, T.Nota Nota, C.Nombre Categoria, CU.Nombre Cuenta, C.TipoOperacionId
                                                        FROM Transacciones T 
                                                        INNER JOIN Categorias C
                                                        ON C.Id = T.CategoriaId
